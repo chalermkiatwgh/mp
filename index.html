@@ -180,6 +180,24 @@
     // เชื่อมต่อ SheetDB API เพื่อเพิ่มข้อมูลเข้า Google Sheet ตามคีย์ภาษาไทยของคุณ
    const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/vfwf5hr934cc1'; 
 
+    // ดึง Parameter LINE User ID เมื่อโหลดหน้าเว็บ
+    window.addEventListener('DOMContentLoaded', () => {
+      getLineUserIdFromUrl();
+    });
+
+  function getLineUserIdFromUrl() {
+      const urlParams = new URLSearchParams(window.location.search);
+      let userId = urlParams.get('userId');
+      
+      if (!userId && urlParams.get('liff.state')) {
+        const stateParams = new URLSearchParams(urlParams.get('liff.state'));
+        userId = stateParams.get('userId');
+      }
+
+      if (userId) {
+        document.getElementById('lineUserId').value = userId;
+      }
+    }
 
     async function handleFormSubmit(event) {
       event.preventDefault();
@@ -200,7 +218,8 @@
             "เลขห้อง": document.getElementById('roomNumber').value,
             "ชื่อ": document.getElementById('firstName').value,
             "นามสกุล": document.getElementById('lastName').value,
-            "เบอร์โทรศัพท์มือถือ": document.getElementById('phoneNumber').value
+            "เบอร์โทรศัพท์มือถือ": document.getElementById('phoneNumber').value,
+            lineUserId: document.getElementById('lineUserId').value
           }
         ]
       };
