@@ -11,6 +11,10 @@
   <link rel="stylesheet" href="https://jsdelivr.net">
   <script src="https://jsdelivr.net"></script>
 
+  <!-- 🛠️ 1. เพิ่ม LINE LIFF SDK CDN สำคัญมากสำหรับการดึงข้อมูล LINE -->
+  <script src="https://line.me"></script>
+     const url = 'https://api.line.me/v2/bot/message/reply';
+  
     <!-- นำเข้าฟอนต์ Prompt เพื่อความโมเดิร์นและอ่านง่าย -->
     <link rel="preconnect" href="https://googleapis.com">
     <link rel="preconnect" href="https://gstatic.com" crossorigin>
@@ -172,6 +176,10 @@
             <div class="action-container">
                 <button type="submit" id="submitBtn" class="btn-submit">บันทึกข้อมูล</button>
             </div>
+             <!-- 🛠️ 2. กล่องเก็บค่า LINE User ID แบบแอบซ่อนเพื่อใช้ส่งเข้า Google Sheet -->
+              <input type="hidden" id="lineUserId" name="lineUserId" value="">
+ 
+  
         </form>
 
     </div>
@@ -179,6 +187,29 @@
   <script>
     // เชื่อมต่อ SheetDB API เพื่อเพิ่มข้อมูลเข้า Google Sheet ตามคีย์ภาษาไทยของคุณ
    const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/vfwf5hr934cc1'; 
+
+    // 🛠️ 3. ฟังก์ชันเริ่มต้นทำงาน LIFF ทันทีที่โหลดหน้าจอเสร็จ
+    window.addEventListener('DOMContentLoaded', () => {
+      initializeLiff();
+    });
+ async function initializeLiff() {
+      try {
+        // แนะนำให้แก้ไข 'YOUR_LIFF_ID' ให้เป็น ID จริงของคุณจากระบบ LINE Developers
+        await liff.init({ liffId: "2011368037-M5GEdcfH" });
+        
+        // เช็คว่าผู้ใช้งานล็อกอินเข้าสู่ระบบ LINE แล้วหรือยัง
+        if (liff.isLoggedIn()) {
+          const profile = await liff.getProfile();
+          globalLineUserId = profile.userId; // ดึงค่า LINE User ID สำเร็จ!
+          document.getElementById('lineUserId').value = globalLineUserId;
+        } else {
+          // หากเปิดผ่านเบราว์เซอร์ปกติภายนอกแอป LINE สั่งให้บังคับล็อกอิน
+          liff.login();
+        }
+      } catch (error) {
+        console.error("LIFF Initialization failed", error);
+      }
+    } 
 
     // ดึง Parameter LINE User ID เมื่อโหลดหน้าเว็บ
     window.addEventListener('DOMContentLoaded', () => {
