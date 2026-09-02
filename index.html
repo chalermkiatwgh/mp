@@ -210,19 +210,20 @@
           body: JSON.stringify(payload)
         });
 
-        const result = await response.json();
+        // 🛠️ ปรับแก้จุดนี้: ตรวจสอบจาก response.ok เพื่อให้ทำงานแน่นอนเมื่อข้อมูลถูกบันทึกสำเร็จ
+        if (response.ok) {
+          // รีเซ็ตล้างฟอร์มทันที ข้อมูลในช่องกรอกจะหายไปพร้อมรับรายใหม่
+          document.getElementById('registrationForm').reset();
 
-        if (response.ok && result.created) {
+          // แสดงแจ้งเตือน Success สวยๆ
           Swal.fire({
             icon: 'success',
             title: 'ลงทะเบียนสำเร็จ!',
             text: 'ระบบได้เพิ่มข้อมูลผู้เช่าเข้า Google Sheet เรียบร้อยแล้ว',
             confirmButtonColor: '#0E7461'
           });
-          
-          document.getElementById('registrationForm').reset();
         } else {
-          throw new Error('ไม่สามารถเพิ่มข้อมูลไปยังระบบได้สำเร็จ');
+          throw new Error('เซิร์ฟเวอร์ปฏิเสธการบันทึกข้อมูล');
         }
 
       } catch (error) {
@@ -233,7 +234,7 @@
           confirmButtonColor: '#0E7461'
         });
       } finally {
-        // คืนสภาพความลอยตัว สัดส่วน และสีปุ่มกดกลับมาในสภาพปกติ
+        // คืนสภาพปุ่มกดให้กลับมาใช้งานได้ต่อตามปกติ
         submitBtn.disabled = false;
         submitBtn.style.backgroundColor = '#0E7461';
         submitBtn.style.boxShadow = '0 4px 14px rgba(14, 116, 97, 0.25)';
