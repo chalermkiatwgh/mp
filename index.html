@@ -1,173 +1,174 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ระบบลงทะเบียนผู้เช่าอพาร์ทเมนต์</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://tailwindcss.com"></script>
-  <!-- SweetAlert2 CDN สำหรับแจ้งเตือน -->
-  <script src="https://jsdelivr.net"></script>
-  <style>
-    @import url('https://googleapis.com');
-    body { font-family: 'Sarabun', sans-serif; }
-  </style>
-</head>
-<body class="bg-blue-50 min-h-screen flex items-center justify-center p-4">
-
-  <!-- Container ฟอร์มหลักสำหรับ Mobile -->
-  <div class="w-full max-w-md bg-white rounded-2xl shadow-xl border border-blue-100 p-6 space-y-6">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ลงทะเบียนผู้เช่าใหม่</title>
+    <!-- นำเข้าฟอนต์ Prompt เพื่อความโมเดิร์นและอ่านง่าย -->
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
     
-    <!-- ส่วนหัว (Header) -->
-      <h2 class="text-2xl font-bold text-blue-900">ลงทะเบียนผู้เช่าพัก</h2>
-      <p class="text-sm text-blue-500">กรุณากรอกข้อมูลห้องพักของคุณให้ครบถ้วน</p>
-    <!-- ฟอร์มลงทะเบียน -->
-    <form id="registrationForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
-      
-      <!-- ฟิลด์: ชื่อ-นามสกุล -->
-      <div class="flex flex-col space-y-1">
-        <label for="fullName" class="text-sm font-semibold text-blue-900">ชื่อ - นามสกุล</label>
-        <input type="text" id="fullName" name="fullName" required
-          class="w-full px-4 py-3 rounded-xl border border-blue-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-gray-700 text-base"
-          placeholder="นายสมชาย มั่นคง">
-      </div>
-
-      <!-- ฟิลด์: เบอร์โทรศัพท์ -->
-      <div class="flex flex-col space-y-1">
-        <label for="phoneNumber" class="text-sm font-semibold text-blue-900">เบอร์โทรศัพท์</label>
-        <input type="tel" id="phoneNumber" name="phoneNumber" required pattern="[0-9]*" inputmode="numeric"
-          oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-          class="w-full px-4 py-3 rounded-xl border border-blue-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-gray-700 text-base"
-          placeholder="0812345678">
-      </div>
-
-      <!-- ฟิลด์: เลขห้องพัก -->
-      <div class="flex flex-col space-y-1">
-        <label for="roomNumber" class="text-sm font-semibold text-blue-900">เลขห้องพัก</label>
-        <input type="text" id="roomNumber" name="roomNumber" required
-          class="w-full px-4 py-3 rounded-xl border border-blue-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-gray-700 text-base"
-          placeholder="A401">
-      </div>
-
-      <!-- ฟิลด์: LINE User ID (Readonly) -->
-      <div class="flex flex-col space-y-1">
-        <label for="lineUserId" class="text-sm font-semibold text-blue-900">LINE User ID</label>
-        <input type="text" id="lineUserId" name="lineUserId" readonly
-          class="w-full px-4 py-3 rounded-xl border border-blue-100 bg-blue-50/50 text-gray-500 text-sm font-mono cursor-not-allowed focus:outline-none"
-          placeholder="ไม่พบข้อมูล LINE User ID">
-      </div>
-
-      <!-- ปุ่มส่งข้อมูล -->
-      <div class="pt-2">
-        <button type="submit" id="submitBtn"
-          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-blue-200 hover:shadow-none transition-all flex items-center justify-center space-x-2 text-base">
-          <span>ยืนยันการลงทะเบียน</span>
-        </button>
-      </div>
-
-    </form>
-  </div>
-
-  <script>
-    // *** นำ URL API จาก SheetDB มาใส่ที่นี่ ***
-    const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/vfwf5hr934cc1'; 
-
-    // ดึง Parameter LINE User ID เมื่อโหลดหน้าเว็บ
-    window.addEventListener('DOMContentLoaded', () => {
-      getLineUserIdFromUrl();
-    });
-
-    function getLineUserIdFromUrl() {
-      const urlParams = new URLSearchParams(window.location.search);
-      let userId = urlParams.get('userId');
-      
-      if (!userId && urlParams.get('liff.state')) {
-        const stateParams = new URLSearchParams(urlParams.get('liff.state'));
-        userId = stateParams.get('userId');
-      }
-
-      if (userId) {
-        document.getElementById('lineUserId').value = userId;
-      }
-    }
-
-    // ฟังก์ชันส่งข้อมูลด้วย Fetch API (ยิงตรงไป SheetDB)
-    async function handleFormSubmit(event) {
-      event.preventDefault();
-      
-      const submitBtn = document.getElementById('submitBtn');
-      
-      // ล็อคปุ่มและแสดงสถานะ Loading
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = `
-        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://w3.org" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-        <span>กำลังบันทึกข้อมูล...</span>
-      `;
-
-      // ดึงเวลาปัจจุบันในฝั่ง Client
-      const now = new Date();
-      const thaiTimestamp = now.toLocaleString('th-TH');
-
-      // เตรียมโครงสร้าง Data (ต้องสะกดคีย์ให้ตรงกับหัวคอลัมน์ใน Google Sheet)
-      const payload = {
-        data: [
-          {
-            timestamp: thaiTimestamp,
-            fullName: document.getElementById('fullName').value,
-            phoneNumber: document.getElementById('phoneNumber').value,
-            roomNumber: document.getElementById('roomNumber').value,
-            lineUserId: document.getElementById('lineUserId').value
-          }
-        ]
-      };
-
-      try {
-        // ใช้ Fetch API เพื่อส่งแบบ POST Request
-        const response = await fetch(SHEETDB_API_URL, {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
-        });
-
-        const result = await response.json();
-
-        // SheetDB สำเร็จจะส่งกลับมาเป็น { created: 1 }
-        if (response.ok && result.created) {
-          Swal.fire({
-            icon: 'success',
-            title: 'ลงทะเบียนสำเร็จ!',
-            text: 'ระบบได้บันทึกข้อมูลเข้า Google Sheet เรียบร้อยแล้ว',
-            confirmButtonColor: '#2563EB'
-          });
-          
-          // ล้างฟอร์มยกเว้น LINE User ID
-          document.getElementById('fullName').value = '';
-          document.getElementById('phoneNumber').value = '';
-          document.getElementById('roomNumber').value = '';
-        } else {
-          throw new Error('บันทึกข้อมูลไม่สำเร็จ');
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Prompt', sans-serif;
         }
 
-      } catch (error) {
-        Swal.fire({
-          icon: 'error',
-          title: 'เกิดข้อผิดพลาด',
-          text: 'ไม่สามารถส่งข้อมูลได้: ' + error.message,
-          confirmButtonColor: '#2563EB'
-        });
-      } finally {
-        // ปลดล็อคปุ่มคืนค่าปกติ
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<span>ยืนยันการลงทะเบียน</span>';
-      }
-    }
-  </script>
+        body {
+            background-color: #F0F8FF; /* สีฟ้าไอซ์บลูอ่อน */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* จำลองกรอบหน้าจอมือถือ */
+        .mobile-container {
+            background-color: #FFFFFF;
+            width: 100%;
+            max-width: 410px; /* ขนาดหน้าจอมือถือมาตรฐาน */
+            height: auto;
+            min-height: 700px;
+            border-radius: 32px;
+            box-shadow: 0 12px 40px rgba(0, 119, 145, 0.08);
+            padding: 32px 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* ส่วนหัวข้อ */
+        .header {
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 40px;
+        }
+
+        .header-icon {
+            font-size: 40px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .header h1 {
+            color: #1D2939; /* สีน้ำเงินเข้ม */
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        /* ส่วนฟอร์มกรอกข้อมูล */
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #1D2939;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1.5px solid #E4E7EC;
+            border-radius: 12px;
+            font-size: 16px;
+            color: #1D2939;
+            background-color: #FFFFFF;
+            transition: all 0.2s ease;
+        }
+
+        /* เอฟเฟกต์เมื่อกดเลือกช่องกรอก */
+        .form-group input:focus {
+            outline: none;
+            border-color: #87CEEB; /* สีฟ้าสกายบลู */
+            box-shadow: 0 0 0 4px rgba(135, 206, 235, 0.2px);
+        }
+
+        /* เปลี่ยนสี Placeholder */
+        .form-group input::placeholder {
+            color: #98A2B3;
+            font-weight: 300;
+        }
+
+        /* ส่วนปุ่มกด */
+        .action-container {
+            margin-top: auto;
+            padding-top: 20px;
+            padding-bottom: 10px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background-color: #007791; /* สีฟ้าลึกน้ำทะเล */
+            color: #FFFFFF;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 119, 145, 0.2);
+        }
+
+        .btn-submit:hover {
+            background-color: #005F75; /* เข้มขึ้นเมื่อเลื่อนเมาส์ผ่าน */
+        }
+
+        .btn-submit:active {
+            transform: scale(0.99); /* ยุบตัวเล็กน้อยเมื่อกด */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="mobile-container">
+        
+        <!-- ส่วนหัวข้อ (Header) -->
+        <div class="header">
+            <span class="header-icon">🏢</span>
+            <h1>ลงทะเบียนผู้เช่าใหม่</h1>
+        </div>
+
+        <!-- ส่วนฟอร์มกรอกข้อมูล (Form) -->
+        <form id="registrationForm" onsubmit="event.preventDefault(); alert('บันทึกข้อมูลเรียบร้อยแล้ว');">
+            
+            <div class="form-group">
+                <label for="roomNumber">เลขห้อง</label>
+                <input type="text" id="roomNumber" placeholder="เช่น 101" required>
+            </div>
+
+            <div class="form-group">
+                <label for="firstName">ชื่อ</label>
+                <input type="text" id="firstName" placeholder="กรอกชื่อจริง" required>
+            </div>
+
+            <div class="form-group">
+                <label for="lastName">นามสกุล</label>
+                <input type="text" id="lastName" placeholder="กรอกนามสกุล" required>
+            </div>
+
+            <div class="form-group">
+                <label for="phoneNumber">เบอร์โทรศัพท์มือถือ</label>
+                <!-- ใช้ input mode numeric เพื่อให้มือถือแสดงแป้นพิมพ์ตัวเลขอัตโนมัติ -->
+                <input type="tel" id="phoneNumber" placeholder="กรอกเบอร์มือถือ 10 หลัก" pattern="[0-9]{10}" inputmode="numeric" required>
+            </div>
+
+            <!-- ส่วนปุ่มกด (Action Button) -->
+            <div class="action-container">
+                <button type="submit" class="btn-submit">บันทึกข้อมูล</button>
+            </div>
+
+        </form>
+
+    </div>
+
 </body>
 </html>
