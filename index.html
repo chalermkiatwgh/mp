@@ -14,92 +14,99 @@
     
     body { 
       font-family: 'Sarabun', sans-serif; 
-      background-color: #F4F8FA; /* สีพื้นหลังหลักภายนอกฟ้าอ่อนแบบในภาพ */
+      background-color: #F2F7FA; /* สีพื้นหลังหลักรอบนอก โทนฟ้าไอซ์บลูจางๆ ตามภาพ */
     }
 
-    /* ตกแต่ง Input Field ให้ตรงตามภาพเป๊ะๆ */
+    /* กล่องข้อความ (Input Field) ขอบมนบาง ลึกโค้งมนยาวสอดคล้องกับภาพ */
     .custom-input {
       background-color: #FFFFFF;
-      border: 1px solid #E5E9EB; /* สีเส้นขอบเทาอ่อนจาง */
-      border-radius: 12px; /* ขอบมน 12px ตามรูปทรงในภาพ */
-      color: #1D2939;
-      font-size: 15px;
+      border: 1px solid #D9E1E7; /* สีเส้นขอบเทาอ่อนนุ่มนวล ไม่เข้มเกินไป */
+      border-radius: 14px; /* ขอบมนลึก 14px ตามสไตล์ในรูปภาพ */
+      color: #1A2530;
+      font-size: 16px;
+      font-weight: 400;
     }
     .custom-input::placeholder {
-      color: #BAC2C7; /* สีของตัวอักษร Placeholder จางๆ */
+      color: #B2BEC7; /* สีข้อความแนะนำจางลงตรงตามภาพ */
     }
     .custom-input:focus {
       outline: none;
-      border-color: #007791;
-      box-shadow: 0 0 0 2px rgba(0, 119, 145, 0.1);
+      border-color: #007691;
+      box-shadow: 0 0 0 3px rgba(0, 118, 145, 0.08);
     }
 
-    /* ปุ่มบันทึกข้อมูลทรงมนลึกสีน้ำเงินอมเขียว (Teal/Ocean Blue) */
+    /* ปุ่มบันทึกข้อมูลสีน้ำเงินเข้มลึกอมเขียว (Ocean Blue) ทรงแบนตัดขอบมน */
     .btn-primary {
-      background-color: #047896; /* เฉดสีน้ำเงินอมเขียวตรงตามรูปภาพ */
+      background-color: #007691; /* รหัสสีที่ถอดออกมาจากปุ่มจริงในรูปภาพ */
       color: #FFFFFF;
-      border-radius: 16px; /* ขอบปุ่มมนลึกกว่ากล่องข้อความ */
+      border-radius: 16px; /* ขอบปุ่มโค้งมนลึก 16px สวยงาม */
     }
     .btn-primary:hover {
-      background-color: #035F77;
+      background-color: #005F75;
     }
   </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-5">
+<body class="min-h-screen flex items-center justify-center p-4">
 
-  <!-- แผ่นการ์ดพื้นหลังสีขาว ขอบมน และมีเงาฟุ้งนุ่มๆ (ตามภาพ) -->
-  <div class="w-full max-w-[390px] bg-white rounded-[32px] shadow-[0_10px_30px_rgba(0,119,145,0.06)] px-8 py-10 space-y-8">
+  <!-- แผ่นการ์ดพื้นหลังสีขาวทรงสูง ขอบมนลึก และเงาฟุ้งเบาๆ โอบล้อมการ์ด -->
+  <div class="w-full max-w-[390px] bg-white rounded-[32px] shadow-[0_15px_35px_rgba(0,119,145,0.05)] p-8 pt-12 pb-10 space-y-6">
     
     <!-- [ ส่วนหัวข้อ - Header ] -->
-    <div class="text-center space-y-4">
-      <!-- ไอคอนรูปตึก 3 มิติโทนฟ้า -->
-      <div class="flex justify-center">
-        <img src="https://icons8.com" alt="building" class="w-16 h-16">
+    <div class="text-center space-y-3">
+      <!-- รูปไอคอนตึกสี่เหลี่ยมสีฟ้าแบบในภาพ -->
+      <div class="flex justify-center mb-1">
+        <svg xmlns="http://w3.org" viewBox="0 0 48 48" class="w-16 h-16">
+          <path fill="#84B0DF" d="M36 42H12V14h24v28z"/>
+          <path fill="#5486C2" d="M26 6h-4v8h4V6z"/>
+          <path fill="#699BD3" d="M30 14H18V6h12v8z"/>
+          <path fill="#5486C2" d="M12 14h24v4H12v-4z"/>
+          <path fill="#A5C8ED" d="M16 20h4v4h-4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zm-12 6h4v4h-4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zm-12 6h4v4h-4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zm-12 6h4v4h-4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4z"/>
+        </svg>
       </div>
-      <!-- ข้อความหัวข้อตัวหนาสีกรมท่าเข้ม -->
-      <h2 class="text-[22px] font-bold tracking-wide text-[#1A2530]">ลงทะเบียนผู้เช่าใหม่</h2>
+      <!-- ข้อความหัวข้อสีกรมท่าเข้ม ตัวหนาจัดวางกึ่งกลาง -->
+      <h2 class="text-2xl font-bold text-[#1D2939] tracking-tight">ลงทะเบียนผู้เช่าใหม่</h2>
     </div>
 
     <!-- [ ส่วนกรอกข้อมูล - Form Fields ] -->
     <form id="registrationForm" onsubmit="handleFormSubmit(event)" class="space-y-[18px]">
       
       <!-- เลขห้อง -->
-      <div class="flex flex-col space-y-2">
-        <label for="roomNumber" class="text-xs font-semibold text-[#5A6E7F] tracking-wide">เลขห้อง</label>
+      <div class="flex flex-col space-y-1.5">
+        <label for="roomNumber" class="text-[15px] font-medium text-[#1D2939]">เลขห้อง</label>
         <input type="text" id="roomNumber" name="roomNumber" required
-          class="custom-input w-full px-4 py-3.5 transition-all"
+          class="custom-input w-full px-4 py-[13px] transition-all"
           placeholder="เช่น 101">
       </div>
 
       <!-- ชื่อ -->
-      <div class="flex flex-col space-y-2">
-        <label for="firstName" class="text-xs font-semibold text-[#5A6E7F] tracking-wide">ชื่อ</label>
+      <div class="flex flex-col space-y-1.5">
+        <label for="firstName" class="text-[15px] font-medium text-[#1D2939]">ชื่อ</label>
         <input type="text" id="firstName" name="firstName" required
-          class="custom-input w-full px-4 py-3.5 transition-all"
+          class="custom-input w-full px-4 py-[13px] transition-all"
           placeholder="กรอกชื่อจริง">
       </div>
 
       <!-- นามสกุล -->
-      <div class="flex flex-col space-y-2">
-        <label for="lastName" class="text-xs font-semibold text-[#5A6E7F] tracking-wide">นามสกุล</label>
+      <div class="flex flex-col space-y-1.5">
+        <label for="lastName" class="text-[15px] font-medium text-[#1D2939]">นามสกุล</label>
         <input type="text" id="lastName" name="lastName" required
-          class="custom-input w-full px-4 py-3.5 transition-all"
+          class="custom-input w-full px-4 py-[13px] transition-all"
           placeholder="กรอกนามสกุล">
       </div>
 
       <!-- เบอร์โทรศัพท์มือถือ -->
-      <div class="flex flex-col space-y-2">
-        <label for="phoneNumber" class="text-xs font-semibold text-[#5A6E7F] tracking-wide">เบอร์โทรศัพท์มือถือ</label>
+      <div class="flex flex-col space-y-1.5">
+        <label for="phoneNumber" class="text-[15px] font-medium text-[#1D2939]">เบอร์โทรศัพท์มือถือ</label>
         <input type="tel" id="phoneNumber" name="phoneNumber" required pattern="[0-9]*" inputmode="numeric"
           oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-          class="custom-input w-full px-4 py-3.5 transition-all"
+          class="custom-input w-full px-4 py-[13px] transition-all"
           placeholder="กรอกเบอร์มือถือ 10 หลัก">
       </div>
 
       <!-- [ ส่วนปุ่มกด - Action Button ] -->
       <div class="pt-4">
         <button type="submit" id="submitBtn"
-          class="btn-primary w-full font-bold py-4 text-base transition-all flex items-center justify-center space-x-2">
+          class="btn-primary w-full font-bold py-4 text-[17px] transition-all flex items-center justify-center space-x-2 shadow-[0_4px_12px_rgba(0,118,145,0.2)]">
           <span>บันทึกข้อมูล</span>
         </button>
       </div>
@@ -108,23 +115,22 @@
   </div>
 
   <script>
-    // คงค่า URL API ของคุณไว้ตามเดิม
-    const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/vfwf5hr934cc1'; 
+    // เชื่อมโยงกับ Google Sheet ผ่าน SheetDB API ของคุณตามเดิม
+    const SHEETDB_API_URL = 'https://sheetdb.io'; 
 
     async function handleFormSubmit(event) {
       event.preventDefault();
       
       const submitBtn = document.getElementById('submitBtn');
       
-      // ล็อคปุ่มขณะประมวลผล
+      // ล็อคปุ่มขณะบันทึกข้อมูลเพื่อความปลอดภัย
       submitBtn.disabled = true;
-      submitBtn.style.backgroundColor = '#035F77';
+      submitBtn.style.backgroundColor = '#005F75';
       submitBtn.innerHTML = `<span>กำลังบันทึกข้อมูล...</span>`;
 
       const now = new Date();
       const thaiTimestamp = now.toLocaleString('th-TH');
 
-      // จัดระเบียบคีย์ส่งข้อมูลเข้า Google Sheet ตามลำดับคอลัมน์ของคุณ
       const payload = {
         data: [
           {
@@ -154,7 +160,7 @@
             icon: 'success',
             title: 'ลงทะเบียนสำเร็จ!',
             text: 'ระบบได้เพิ่มข้อมูลผู้เช่าเข้า Google Sheet เรียบร้อยแล้ว',
-            confirmButtonColor: '#047896'
+            confirmButtonColor: '#007691'
           });
           
           document.getElementById('registrationForm').reset();
@@ -167,12 +173,12 @@
           icon: 'error',
           title: 'เกิดข้อผิดพลาด',
           text: error.message,
-          confirmButtonColor: '#047896'
+          confirmButtonColor: '#007691'
         });
-      } finaly {
-        // คืนสภาพปุ่มกด
+      } finally {
+        // คืนสภาพปุ่มกดปกติ
         submitBtn.disabled = false;
-        submitBtn.style.backgroundColor = '#047896';
+        submitBtn.style.backgroundColor = '#007691';
         submitBtn.innerHTML = '<span>บันทึกข้อมูล</span>';
       }
     }
