@@ -178,8 +178,6 @@
       event.preventDefault();
       
       const submitBtn = document.getElementById('submitBtn');
-      
-      // ล็อคปุ่มขณะประมวลผลและเปลี่ยนสีปุ่มให้เข้มขึ้นชั่วคราว
       submitBtn.disabled = true;
       submitBtn.style.backgroundColor = '#0A5A4A';
       submitBtn.style.boxShadow = 'none';
@@ -200,6 +198,10 @@
         ]
       };
 
+      // 🛠️ สร้างกลไกตั้งเวลากำหนด Timeout ไว้ที่ 8 วินาที
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+
       try {
         const response = await fetch(SHEETDB_API_URL, {
           method: 'POST',
@@ -207,15 +209,14 @@
             'Accept': 'application/json',
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
+          signal: controller.signal // ผูกสัญญาณยกเลิกเข้ากับ fetch
         });
 
-        // 🛠️ ปรับแก้จุดนี้: ตรวจสอบจาก response.ok เพื่อให้ทำงานแน่นอนเมื่อข้อมูลถูกบันทึกสำเร็จ
-        if (response.ok) {
-          // รีเซ็ตล้างฟอร์มทันที ข้อมูลในช่องกรอกจะหายไปพร้อมรับรายใหม่
-          document.getElementById('registrationForm').reset();
+        clearTimeout(timeoutId); // บันทึกเสร็จก่อนกำหนด ล้างค่าจับเวลาทิ้ง
 
-          // แสดงแจ้งเตือน Success สวยๆ
+        if (response.ok) {
+          document.getElementById('registrationForm').reset();
           Swal.fire({
             icon: 'success',
             title: 'ลงทะเบียนสำเร็จ!',
@@ -223,18 +224,25 @@
             confirmButtonColor: '#0E7461'
           });
         } else {
-          throw new Error('เซิร์ฟเวอร์ปฏิเสธการบันทึกข้อมูล');
+          throw new Error(`เซิร์ฟเวอร์ตอบกลับรหัสข้อผิดพลาด: ${response.status}`);
         }
 
       } catch (error) {
+        clearTimeout(timeoutId);
+        let errorMsg = error.message;
+        
+        // ตรวจสอบว่าเป็นกรณีหมดเวลาเชื่อมต่อ (Timeout) หรือไม่
+        if (error.name === 'AbortError') {
+          errorMsg = 'การเชื่อมต่อหมดเวลา (Timeout) เนื่องจากเซิร์ฟเวอร์ตอบสนองช้าเกิน 8 วินาที';
+        }
+
         Swal.fire({
           icon: 'error',
-          title: 'เกิดข้อผิดพลาด',
-          text: error.message,
+          title: 'เกิดข้อผิดพลาดในการส่งข้อมูล',
+          text: errorMsg + ' แนะนำให้ตรวจสอบสถานะ API ในแดชบอร์ด SheetDB อีกครั้ง',
           confirmButtonColor: '#0E7461'
         });
       } finally {
-        // คืนสภาพปุ่มกดให้กลับมาใช้งานได้ต่อตามปกติ
         submitBtn.disabled = false;
         submitBtn.style.backgroundColor = '#0E7461';
         submitBtn.style.boxShadow = '0 4px 14px rgba(14, 116, 97, 0.25)';
