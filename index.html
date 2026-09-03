@@ -1,40 +1,82 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test LIFF User ID</title>
+    <title>LINE LIFF - Get User ID</title>
+    <!-- Include LINE SDK -->
     <script src="https://line-scdn.net"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        button {
+            background-color: #06C755;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #05b04b;
+        }
+    </style>
 </head>
 <body>
-    <h2>กำลังโหลดข้อมูล LINE User ID...</h2>
+
+    <div class="container">
+        <h2>LINE LIFF User ID</h2>
+        <button id="btn-show">Click to Show User ID</button>
+    </div>
 
     <script>
-        const LIFF_ID = "2011380429-uAx3x4YJ"; // ใส่ LIFF ID ของคุณ
+        // Replace with your actual LIFF ID from LINE Developers Console
+        const MY_LIFF_ID = '2011380429-uAx3x4YJ'; 
 
-        async function main() {
+        async function initLIFF() {
             try {
-                await liff.init({ liffId: LIFF_ID });
-                
-                // ตรวจสอบการล็อกอิน
+                await liff.init({ liffId: MY_LIFF_ID });
                 if (!liff.isLoggedIn()) {
                     liff.login();
-                } else {
-                    const profile = await liff.getProfile();
-                    const userId = profile.userId;
-                    
-                    // แสดง Popup แจ้ง User ID
-                    alert("LINE User ID ของคุณคือ:\n" + userId);
-                    
-                    // หรือแสดงบนหน้าจอ
-                    document.querySelector('h2').innerText = "User ID: " + userId;
                 }
             } catch (error) {
-                alert("เกิดข้อผิดพลาดในการ initialize LIFF: " + error);
+                console.error('LIFF Initialization failed', error);
             }
         }
 
-        main();
+        document.getElementById('btn-show').addEventListener('click', async () => {
+            if (!liff.isLoggedIn()) {
+                alert('Please log in first.');
+                return;
+            }
+            try {
+                // Get user profile
+                const profile = await liff.getProfile();
+                // Alert popup with the User ID
+                alert(`Your LINE User ID is:\n${profile.userId}`);
+            } catch (error) {
+                alert('Error fetching profile: ' + error.message);
+            }
+        });
+
+        // Initialize on load
+        initLIFF();
     </script>
 </body>
 </html>
