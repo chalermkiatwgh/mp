@@ -1,261 +1,40 @@
 <!DOCTYPE html>
-<html lang="th">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ลงทะเบียนผู้เช่าใหม่</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://tailwindcss.com"></script>
-  
- <!-- 🛠️ แก้ไข: เพิ่ม SweetAlert2 CSS และ JS CDN แบบเต็มชุด ป้องกันหน้าต่างแจ้งเตือนซ่อนตัว -->
-  <link rel="stylesheet" href="https://jsdelivr.net">
-  <script src="https://jsdelivr.net"></script>
-  
-    <!-- นำเข้าฟอนต์ Prompt เพื่อความโมเดิร์นและอ่านง่าย -->
-    <link rel="preconnect" href="https://googleapis.com">
-    <link rel="preconnect" href="https://gstatic.com" crossorigin>
-    <link href="https://googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Prompt', sans-serif;
-        }
-
-        body {
-            background-color: #F0F8FF; /* สีฟ้าไอซ์บลูอ่อน */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        /* จำลองกรอบหน้าจอมือถือ */
-        .mobile-container {
-            background-color: #FFFFFF;
-            width: 100%;
-            max-width: 410px; /* ขนาดหน้าจอมือถือมาตรฐาน */
-            height: auto;
-            min-height: 700px;
-            border-radius: 32px;
-            box-shadow: 0 12px 40px rgba(0, 119, 145, 0.08);
-            padding: 32px 24px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        /* ส่วนหัวข้อ */
-        .header {
-            text-align: center;
-            margin-top: 20px;
-            margin-bottom: 40px;
-        }
-
-        .header-icon {
-            font-size: 40px;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .header h1 {
-            color: #1D2939; /* สีน้ำเงินเข้ม */
-            font-size: 24px;
-            font-weight: 600;
-        }
-
-        /* ส่วนฟอร์มกรอกข้อมูล */
-        .form-group {
-            margin-bottom: 24px;
-        }
-
-        .form-group label {
-            display: block;
-            color: #1D2939;
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 8px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 14px 16px;
-            border: 1.5px solid #E4E7EC;
-            border-radius: 12px;
-            font-size: 16px;
-            color: #1D2939;
-            background-color: #FFFFFF;
-            transition: all 0.2s ease;
-        }
-
-        /* เอฟเฟกต์เมื่อกดเลือกช่องกรอก */
-        .form-group input:focus {
-            outline: none;
-            border-color: #87CEEB; /* สีฟ้าสกายบลู */
-            box-shadow: 0 0 0 4px rgba(135, 206, 235, 0.2px);
-        }
-
-        /* เปลี่ยนสี Placeholder */
-        .form-group input::placeholder {
-            color: #98A2B3;
-            font-weight: 300;
-        }
-
-        /* ส่วนปุ่มกด */
-        .action-container {
-            margin-top: auto;
-            padding-top: 20px;
-            padding-bottom: 10px;
-        }
-
-        .btn-submit {
-            width: 100%;
-            padding: 16px;
-            background-color: #007791; /* สีฟ้าลึกน้ำทะเล */
-            color: #FFFFFF;
-            border: none;
-            border-radius: 14px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-            box-shadow: 0 4px 12px rgba(0, 119, 145, 0.2);
-        }
-
-        .btn-submit:hover {
-            background-color: #005F75; /* เข้มขึ้นเมื่อเลื่อนเมาส์ผ่าน */
-        }
-
-        .btn-submit:active {
-            transform: scale(0.99); /* ยุบตัวเล็กน้อยเมื่อกด */
-        }
-    </style>
+    <title>Test LIFF User ID</title>
+    <script src="https://line-scdn.net"></script>
 </head>
 <body>
+    <h2>กำลังโหลดข้อมูล LINE User ID...</h2>
 
-    <div class="mobile-container">
-        
-        <!-- ส่วนหัวข้อ (Header) -->
-        <div class="header">
-            <span class="header-icon">🏢</span>
-            <h1>ลงทะเบียนผู้เช่าใหม่</h1>
-        </div>
+    <script>
+        const LIFF_ID = "2011380429-uAx3x4YJ"; // ใส่ LIFF ID ของคุณ
 
-        <!-- ส่วนฟอร์มกรอกข้อมูล (Form) -->
-        <form id="registrationForm" onsubmit="handleFormSubmit(event)">
-            
-            <div class="form-group">
-                <label for="roomNumber">เลขห้อง</label>
-                <input type="text" id="roomNumber" placeholder="เช่น 101" required>
-            </div>
-
-            <div class="form-group">
-                <label for="firstName">ชื่อ</label>
-                <input type="text" id="firstName" placeholder="กรอกชื่อจริง" required>
-            </div>
-
-            <div class="form-group">
-                <label for="lastName">นามสกุล</label>
-                <input type="text" id="lastName" placeholder="กรอกนามสกุล" required>
-            </div>
-
-            <div class="form-group">
-                <label for="phoneNumber">เบอร์โทรศัพท์มือถือ</label>
-                <!-- ใช้ input mode numeric เพื่อให้มือถือแสดงแป้นพิมพ์ตัวเลขอัตโนมัติ -->
-                <input type="tel" id="phoneNumber" placeholder="กรอกเบอร์มือถือ 10 หลัก" pattern="[0-9]{10}" inputmode="numeric" required>
-            </div>
-
-            <!-- ส่วนปุ่มกด (Action Button) -->
-            <div class="action-container">
-                <button type="submit" id="submitBtn" class="btn-submit">บันทึกข้อมูล</button>
-            </div>
-       
-        </form>
-
-    </div>
-
-  <script>
-    // เชื่อมต่อ SheetDB API เพื่อเพิ่มข้อมูลเข้า Google Sheet ตามคีย์ภาษาไทยของคุณ
-   const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/vfwf5hr934cc1'; 
-
-    async function handleFormSubmit(event) {
-      event.preventDefault();
-      
-      const submitBtn = document.getElementById('submitBtn');
-      submitBtn.disabled = true;
-      submitBtn.style.backgroundColor = '#0A5A4A';
-      submitBtn.style.boxShadow = 'none';
-      submitBtn.innerHTML = `<span>กำลังบันทึกข้อมูล...</span>`;
-
-      const now = new Date();
-      const thaiTimestamp = now.toLocaleString('th-TH');
-
-      const payload = {
-        data: [
-          {
-            "Timestamp": thaiTimestamp,
-            "เลขห้อง": document.getElementById('roomNumber').value,
-            "ชื่อ": document.getElementById('firstName').value,
-            "นามสกุล": document.getElementById('lastName').value,
-            "เบอร์โทรศัพท์มือถือ": document.getElementById('phoneNumber').value
-          }
-        ]
-      };
-
-      // 🛠️ สร้างกลไกตั้งเวลากำหนด Timeout ไว้ที่ 8 วินาที
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000);
-
-      try {
-        const response = await fetch(SHEETDB_API_URL, {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload),
-          signal: controller.signal // ผูกสัญญาณยกเลิกเข้ากับ fetch
-        });
-
-        clearTimeout(timeoutId); // บันทึกเสร็จก่อนกำหนด ล้างค่าจับเวลาทิ้ง
-
-        if (response.ok) {
-          document.getElementById('registrationForm').reset();
-          Swal.fire({
-            icon: 'success',
-            title: 'ลงทะเบียนสำเร็จ!',
-            text: 'ระบบได้เพิ่มข้อมูลผู้เช่าเข้า Google Sheet เรียบร้อยแล้ว',
-            confirmButtonColor: '#0E7461'
-          });
-        } else {
-          throw new Error(`เซิร์ฟเวอร์ตอบกลับรหัสข้อผิดพลาด: ${response.status}`);
+        async function main() {
+            try {
+                await liff.init({ liffId: LIFF_ID });
+                
+                // ตรวจสอบการล็อกอิน
+                if (!liff.isLoggedIn()) {
+                    liff.login();
+                } else {
+                    const profile = await liff.getProfile();
+                    const userId = profile.userId;
+                    
+                    // แสดง Popup แจ้ง User ID
+                    alert("LINE User ID ของคุณคือ:\n" + userId);
+                    
+                    // หรือแสดงบนหน้าจอ
+                    document.querySelector('h2').innerText = "User ID: " + userId;
+                }
+            } catch (error) {
+                alert("เกิดข้อผิดพลาดในการ initialize LIFF: " + error);
+            }
         }
 
-      } catch (error) {
-        clearTimeout(timeoutId);
-        let errorMsg = error.message;
-        
-        // ตรวจสอบว่าเป็นกรณีหมดเวลาเชื่อมต่อ (Timeout) หรือไม่
-        if (error.name === 'AbortError') {
-          errorMsg = 'การเชื่อมต่อหมดเวลา (Timeout) เนื่องจากเซิร์ฟเวอร์ตอบสนองช้าเกิน 8 วินาที';
-        }
-
-        Swal.fire({
-          icon: 'error',
-          title: 'เกิดข้อผิดพลาดในการส่งข้อมูล',
-          text: errorMsg + ' แนะนำให้ตรวจสอบสถานะ API ในแดชบอร์ด SheetDB อีกครั้ง',
-          confirmButtonColor: '#0E7461'
-        });
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.style.backgroundColor = '#0E7461';
-        submitBtn.style.boxShadow = '0 4px 14px rgba(14, 116, 97, 0.25)';
-        submitBtn.innerHTML = '<span>บันทึกข้อมูล</span>';
-      }
-    }
-  </script>
+        main();
+    </script>
 </body>
 </html>
