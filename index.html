@@ -13,9 +13,11 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
             background-color: #f4f4f9;
+            padding: 20px 0;
+            box-sizing: border-box;
         }
         .container {
             text-align: center;
@@ -23,7 +25,7 @@
             background: white;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            width: 320px;
+            width: 340px;
         }
         .form-group {
             margin-bottom: 16px;
@@ -35,7 +37,7 @@
             font-weight: bold;
             color: #333;
         }
-        input[type="text"] {
+        input[type="text"], input[type="tel"] {
             width: 100%;
             padding: 10px;
             border: 1px solid #ccc;
@@ -57,6 +59,7 @@
             cursor: pointer;
             width: 100%;
             font-weight: bold;
+            margin-top: 10px;
         }
         button:hover {
             background-color: #05b04b;
@@ -75,32 +78,44 @@
 <body>
 
     <div class="container">
-        <h2>Room Registration</h2>
+        <h2>ลงทะเบียนห้องพัก</h2>
         
         <form id="registrationForm">
             <div class="form-group">
                 <label for="lineUserId">LINE User ID</label>
-                <!-- Autofilled by LIFF SDK and locked from tampering -->
-                <input type="text" id="lineUserId" readonly placeholder="Loading your profile...">
+                <input type="text" id="lineUserId" readonly placeholder="กำลังโหลดโปรไฟล์ LINE...">
             </div>
             
             <div class="form-group">
-                <label for="roomNumber">Room Number</label>
-                <input type="text" id="roomNumber" required placeholder="e.g., 401, 12B">
+                <label for="roomNumber">หมายเลขห้อง</label>
+                <input type="text" id="roomNumber" required placeholder="เช่น 401, 12B">
+            </div>
+
+            <div class="form-group">
+                <label for="firstName">ชื่อจริง</label>
+                <input type="text" id="firstName" required placeholder="กรอกชื่อจริง">
+            </div>
+
+            <div class="form-group">
+                <label for="lastName">นามสกุล</label>
+                <input type="text" id="lastName" required placeholder="กรอกนามสกุล">
+            </div>
+
+            <div class="form-group">
+                <label for="phoneNumber">เบอร์โทรศัพท์</label>
+                <input type="tel" id="phoneNumber" required pattern="[0-9]{9,10}" placeholder="เช่น 0812345678">
             </div>
             
-            <button type="submit" id="btn-submit" disabled>Submit Data</button>
+            <button type="submit" id="btn-submit" disabled>ส่งข้อมูลลงทะเบียน</button>
         </form>
         
-        <div id="status-message" style="color: #666;">Initializing LIFF...</div>
+        <div id="status-message" style="color: #666;">กำลังเริ่มต้นระบบ LIFF...</div>
     </div>
 
     <script>
-        // Kept your official LIFF ID from the original source file
         const MY_LIFF_ID = '2011380429-uAx3x4YJ'; 
         
-        // PASTE YOUR SHEETDB API ENDPOINT HERE
-        // Example format: https://sheetdb.io
+        // วาง URL API ของ SheetDB ของคุณที่นี่
         // const SHEETDB_API_URL = 'YOUR_SHEETDB_API_URL';
    const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/vfwf5hr934cc1'; 
 
@@ -109,7 +124,6 @@
         const submitButton = document.getElementById('btn-submit');
         const registrationForm = document.getElementById('registrationForm');
 
-        // Initialize LIFF and retrieve profile details automatically
         async function initLIFF() {
             try {
                 await liff.init({ liffId: MY_LIFF_ID });
@@ -118,37 +132,37 @@
                 } else {
                     const profile = await liff.getProfile();
                     lineUserIdInput.value = profile.userId;
-                    statusMessage.textContent = 'LINE account linked successfully.';
+                    statusMessage.textContent = 'เชื่อมต่อ LINE สำเร็จ';
                     statusMessage.style.color = 'green';
                     submitButton.disabled = false;
                 }
             } catch (error) {
                 console.error('LIFF Initialization failed', error);
-                statusMessage.textContent = 'Failed to load LINE profile.';
+                statusMessage.textContent = 'ไม่สามารถโหลดโปรไฟล์ LINE ได้';
                 statusMessage.style.color = 'red';
             }
         }
 
-        // Form Submission logic
         registrationForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const roomNum = document.getElementById('roomNumber').value.trim();
+            const fName = document.getElementById('firstName').value.trim();
+            const lName = document.getElementById('lastName').value.trim();
+            const phone = document.getElementById('phoneNumber').value.trim();
             const userId = lineUserIdInput.value;
 
             if (!userId) {
-                alert('LINE Profile not loaded properly. Please refresh.');
+                alert('ไม่พบข้อมูล LINE Profile กรุณารีเฟรชหน้าจอ');
                 return;
             }
 
-            // Update UI state to show processing
-            statusMessage.textContent = 'Submitting your data...';
+            statusMessage.textContent = 'กำลังส่งข้อมูล...';
             statusMessage.style.color = '#333';
             submitButton.disabled = true;
 
             try {
-                // SheetDB POST Request mapping
-                // Note: Make sure your target Google Sheet has headers named exactly "roomNumber" and "lineId" in the first row.
+                // ส่งข้อมูลไปยัง SheetDB โดยระบุชื่อคอลัมน์ให้ตรงกับบน Google Sheets
                 const response = await fetch(SHEETDB_API_URL, {
                     method: 'POST',
                     headers: {
@@ -158,8 +172,11 @@
                     body: JSON.stringify({
                         data: [
                             {
+                                'lineId': userId,
                                 'roomNumber': roomNum,
-                                'lineId': userId
+                                'firstName': fName,
+                                'lastName': lName,
+                                'phoneNumber': phone
                             }
                         ]
                     })
@@ -167,26 +184,28 @@
 
                 const data = await response.json();
 
-                // SheetDB returns a single object containing the number of created rows on success: { created: 1 }
                 if (data.created && data.created > 0) {
-                    statusMessage.textContent = 'Registration completed successfully!';
+                    statusMessage.textContent = 'ลงทะเบียนข้อมูลสำเร็จแล้ว!';
                     statusMessage.style.color = 'green';
-                    document.getElementById('roomNumber').value = ''; // Clear room number input
+                    
+                    // เคลียร์ค่าในฟอร์มหลังจากส่งเสร็จ (ยกเว้น LINE ID)
+                    document.getElementById('roomNumber').value = '';
+                    document.getElementById('firstName').value = '';
+                    document.getElementById('lastName').value = '';
+                    document.getElementById('phoneNumber').value = '';
                 } else {
-                    throw new Error(data.error || 'Failed to append data to spreadsheet');
+                    throw new Error(data.error || 'ไม่สามารถเพิ่มข้อมูลลงใน Google Sheets ได้');
                 }
             } catch (error) {
                 console.error(error);
-                statusMessage.textContent = 'Submission error: ' + error.message;
+                statusMessage.textContent = 'เกิดข้อผิดพลาด: ' + error.message;
                 statusMessage.style.color = 'red';
             } finally {
                 submitButton.disabled = false;
             }
         });
 
-        // Initialize on load
         initLIFF();
     </script>
 </body>
 </html>
-
