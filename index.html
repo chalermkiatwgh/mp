@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LINE LIFF - Get User ID</title>
+    <title>LINE LIFF - Room Registration (SheetDB)</title>
     <!-- Include LINE SDK -->
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
@@ -19,10 +19,33 @@
         }
         .container {
             text-align: center;
-            padding: 20px;
+            padding: 24px;
             background: white;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 320px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #333;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        input[readonly] {
+            background-color: #e9ecef;
+            color: #495057;
         }
         button {
             background-color: #06C755;
@@ -32,46 +55,132 @@
             font-size: 16px;
             border-radius: 4px;
             cursor: pointer;
+            width: 100%;
+            font-weight: bold;
         }
         button:hover {
             background-color: #05b04b;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #status-message {
+            margin-top: 12px;
+            font-size: 14px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>LINE LIFF User ID</h2>
-        <button id="btn-show">Click to Show User ID</button>
+        <h2>Room Registration</h2>
+        
+        <form id="registrationForm">
+            <div class="form-group">
+                <label for="lineUserId">LINE User ID</label>
+                <!-- Autofilled by LIFF SDK and locked from tampering -->
+                <input type="text" id="lineUserId" readonly placeholder="Loading your profile...">
+            </div>
+            
+            <div class="form-group">
+                <label for="roomNumber">Room Number</label>
+                <input type="text" id="roomNumber" required placeholder="e.g., 401, 12B">
+            </div>
+            
+            <button type="submit" id="btn-submit" disabled>Submit Data</button>
+        </form>
+        
+        <div id="status-message" style="color: #666;">Initializing LIFF...</div>
     </div>
 
     <script>
-        // Replace with your actual LIFF ID from LINE Developers Console
+        // Kept your official LIFF ID from the original source file
         const MY_LIFF_ID = '2011380429-uAx3x4YJ'; 
+        
+        // PASTE YOUR SHEETDB API ENDPOINT HERE
+        // Example format: https://sheetdb.io
+        // const SHEETDB_API_URL = 'YOUR_SHEETDB_API_URL';
+   const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/vfwf5hr934cc1'; 
 
+        const statusMessage = document.getElementById('status-message');
+        const lineUserIdInput = document.getElementById('lineUserId');
+        const submitButton = document.getElementById('btn-submit');
+        const registrationForm = document.getElementById('registrationForm');
+
+        // Initialize LIFF and retrieve profile details automatically
         async function initLIFF() {
             try {
                 await liff.init({ liffId: MY_LIFF_ID });
                 if (!liff.isLoggedIn()) {
                     liff.login();
+                } else {
+                    const profile = await liff.getProfile();
+                    lineUserIdInput.value = profile.userId;
+                    statusMessage.textContent = 'LINE account linked successfully.';
+                    statusMessage.style.color = 'green';
+                    submitButton.disabled = false;
                 }
             } catch (error) {
                 console.error('LIFF Initialization failed', error);
+                statusMessage.textContent = 'Failed to load LINE profile.';
+                statusMessage.style.color = 'red';
             }
         }
 
-        document.getElementById('btn-show').addEventListener('click', async () => {
-            if (!liff.isLoggedIn()) {
-                alert('Please log in first.');
+        // Form Submission logic
+        registrationForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const roomNum = document.getElementById('roomNumber').value.trim();
+            const userId = lineUserIdInput.value;
+
+            if (!userId) {
+                alert('LINE Profile not loaded properly. Please refresh.');
                 return;
             }
+
+            // Update UI state to show processing
+            statusMessage.textContent = 'Submitting your data...';
+            statusMessage.style.color = '#333';
+            submitButton.disabled = true;
+
             try {
-                // Get user profile
-                const profile = await liff.getProfile();
-                // Alert popup with the User ID
-                alert(`Your LINE User ID is:\n${profile.userId}`);
+                // SheetDB POST Request mapping
+                // Note: Make sure your target Google Sheet has headers named exactly "roomNumber" and "lineId" in the first row.
+                const response = await fetch(SHEETDB_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        data: [
+                            {
+                                'roomNumber': roomNum,
+                                'lineId': userId
+                            }
+                        ]
+                    })
+                });
+
+                const data = await response.json();
+
+                // SheetDB returns a single object containing the number of created rows on success: { created: 1 }
+                if (data.created && data.created > 0) {
+                    statusMessage.textContent = 'Registration completed successfully!';
+                    statusMessage.style.color = 'green';
+                    document.getElementById('roomNumber').value = ''; // Clear room number input
+                } else {
+                    throw new Error(data.error || 'Failed to append data to spreadsheet');
+                }
             } catch (error) {
-                alert('Error fetching profile: ' + error.message);
+                console.error(error);
+                statusMessage.textContent = 'Submission error: ' + error.message;
+                statusMessage.style.color = 'red';
+            } finally {
+                submitButton.disabled = false;
             }
         });
 
@@ -80,3 +189,4 @@
     </script>
 </body>
 </html>
+
